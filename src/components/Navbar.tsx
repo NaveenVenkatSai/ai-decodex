@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { useState } from 'react';
-import Image from 'next/image';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -14,11 +13,14 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
   const linkStyle = (path: string) => ({
     color: isActive(path) ? 'var(--text-primary)' : undefined,
-    fontWeight: isActive(path) ? 600 : undefined,
+    fontWeight: isActive(path) ? (600 as number) : undefined,
   });
 
-  // Don't show Navbar on the login page
   if (pathname === '/login') return null;
+
+  const initials = session?.user?.name
+    ? session.user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
 
   return (
     <nav className="navbar">
@@ -35,7 +37,6 @@ export default function Navbar() {
           <li><Link href="/study-planner" style={linkStyle('/study-planner')}>Study Planner</Link></li>
         </ul>
 
-        {/* Auth section */}
         {session ? (
           <div style={{ position: 'relative' }}>
             <button
@@ -47,24 +48,15 @@ export default function Navbar() {
                 cursor: 'pointer', transition: 'all 0.2s',
               }}
             >
-              {session.user?.image ? (
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name || 'User'}
-                  width={30}
-                  height={30}
-                  style={{ borderRadius: '50%' }}
-                />
-              ) : (
-                <div style={{
-                  width: 30, height: 30, borderRadius: '50%',
-                  background: 'var(--gradient-primary)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.875rem', color: 'white', fontWeight: 700,
-                }}>
-                  {session.user?.name?.[0] ?? '?'}
-                </div>
-              )}
+              {/* Initials avatar */}
+              <div style={{
+                width: 30, height: 30, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.75rem', color: 'white', fontWeight: 700,
+              }}>
+                {initials}
+              </div>
               <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {session.user?.name?.split(' ')[0]}
               </span>
